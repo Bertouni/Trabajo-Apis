@@ -1,0 +1,77 @@
+TABLA BD
+
+CREATE TABLE Usuarios
+
+   usuario_id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    contraseña VARCHAR(255) NOT NULL,
+    tipo_usuario ENUM('estudiante', 'profesor', 'administrador') NOT NULL,
+    fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla de Profesores 
+Profesores (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT,
+    especialidad VARCHAR(100),
+    biografia TEXT,
+    calificacion_promedio DECIMAL(3, 2) DEFAULT 0.00,
+    disponibilidad TEXT,
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id) ON DELETE CASCADE
+);
+
+CREATE TABLE Estudiantes
+Estudiantes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT,
+    nivel_educativo VARCHAR(100),
+    materias_interes TEXT,
+    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id) ON DELETE CASCADE
+);
+
+CREATE TABLE Clases 
+Clases (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    profesor_id INT,
+    materia VARCHAR(100),
+    descripcion TEXT,
+    horario DATETIME,
+    duracion INT, -- en minutos
+    precio DECIMAL(10, 2),
+    FOREIGN KEY (profesor_id) REFERENCES Profesores(id) ON DELETE CASCADE
+);
+
+CREATE TABLE Reservas 
+ Reservas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    estudiante_id INT,
+    clase_id INT,
+    fecha_reserva DATETIME DEFAULT CURRENT_TIMESTAMP,
+    estado ENUM('pendiente', 'confirmada', 'cancelada') DEFAULT 'pendiente',
+    FOREIGN KEY (estudiante_id) REFERENCES Estudiantes(id) ON DELETE CASCADE,
+    FOREIGN KEY (clase_id) REFERENCES Clases(id) ON DELETE CASCADE
+);
+
+CREATE TABLE Pagos
+Pagos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    reserva_id INT,
+    monto DECIMAL(10, 2),
+    fecha_pago DATETIME DEFAULT CURRENT_TIMESTAMP,
+    metodo_pago ENUM('tarjeta', 'transferencia', 'paypal') NOT NULL,
+    estado_pago ENUM('pendiente', 'completado', 'fallido') DEFAULT 'pendiente',
+    FOREIGN KEY (reserva_id) REFERENCES Reservas(id) ON DELETE CASCADE
+);
+
+CREATE TABLE Comentarios
+Comentarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    clase_id INT,
+    estudiante_id INT,
+    calificacion INT CHECK (calificacion BETWEEN 1 AND 5),
+    comentario TEXT,
+    fecha_comentario DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (clase_id) REFERENCES Clases(id) ON DELETE CASCADE,
+    FOREIGN KEY (estudiante_id) REFERENCES Estudiantes(id) ON DELETE CASCADE
+);
